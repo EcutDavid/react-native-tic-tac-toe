@@ -53,7 +53,9 @@ export default class GameBoard extends Component {
 
       if (area && inputs.every(d => d !== area.id)) {
         this.setState({ userInputs: userInputs.concat(area.id) })
-        setTimeout(() => this.AIAction(), 3)
+        if (!this.judgeWinner(userInputs.concat(area.id))) {
+          setTimeout(() => this.AIAction(), 3)
+        }
       }
   }
 
