@@ -13,7 +13,7 @@ import {
 
 export default class Cross extends Component {
   render() {
-    const { xTranslate, yTranslate } = this.props
+    const { xTranslate, yTranslate, color } = this.props
     return (
       <View style={[styles.container, {
         transform: [
@@ -24,12 +24,14 @@ export default class Cross extends Component {
         <View style={[styles.line, {
           transform: [
             {rotate: '45deg'},
-          ]
+          ],
+          backgroundColor: color ? color : '#000'
         }]} />
         <View style={[styles.line, {
           transform: [
             {rotate: '135deg'},
-          ]
+          ],
+          backgroundColor: color ? color : '#000'
         }]} />
       </View>
     )
@@ -44,7 +46,6 @@ const styles = StyleSheet.create({
   },
   line: {
     position: 'absolute',
-    backgroundColor: '#000',
     width: 8,
     height: 105,
   },
