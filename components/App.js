@@ -40,7 +40,7 @@ export default class App extends Component {
               </Text>
               <TouchableOpacity onPress={() => this.startGame()}>
                 <Text style={styles.instructions}>
-                  Click here to start
+                  Touch here to start
                 </Text>
               </TouchableOpacity>
             </View>

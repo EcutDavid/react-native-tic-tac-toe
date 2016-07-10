@@ -15,17 +15,23 @@ import {
 
 import Circle from './Circle'
 import Cross from './Cross'
-import { centerPoints, areas, conditions } from '../constants/game'
+import {
+  CENTER_POINTS,
+  AREAS,
+  CONDITIONS,
+  GAME_RESULT_NO,
+  GAME_RESULT_USER,
+  GAME_RESULT_AI,
+  GAME_RESULT_TIE
+} from '../constants/game'
 
-// If result === -1 game on going, result === 0 user won the game
-// result === 1 AI won the game, result === 2 no winner,
 export default class GameBoard extends Component {
   constructor() {
     super()
     this.state= {
-      userInputs:[],
+      userInputs: [],
       AIInputs: [],
-      result: -1
+      result: GAME_RESULT_NO
     }
   }
 
@@ -34,7 +40,7 @@ export default class GameBoard extends Component {
     this.setState({
       userInputs: [],
       AIInputs: [],
-      result: -1
+      result: GAME_RESULT_NO
     })
     setTimeout(() => {this.restarting = false}, 3)
   }
@@ -47,7 +53,7 @@ export default class GameBoard extends Component {
     }
     const inputs = userInputs.concat(AIInputs)
 
-    const area = areas.find(d =>
+    const area = AREAS.find(d =>
       (locationX >= d.startX && locationX <= d.endX) &&
       (locationY >= d.startY && locationY <= d.endY))
 
@@ -64,7 +70,7 @@ export default class GameBoard extends Component {
       const { userInputs, AIInputs } = this.state
       const inputs = userInputs.concat(AIInputs)
 
-      const randomNumber = Number.parseInt(Math.random() * 9)
+      const randomNumber = Number.parseInt(Math.random() * 8.9)
       if (inputs.every(d => d !== randomNumber)) {
         this.setState({ AIInputs: AIInputs.concat(randomNumber) })
         break
@@ -77,7 +83,7 @@ export default class GameBoard extends Component {
   }
 
   judgeWinner(inputs) {
-    return conditions.some(d => d.every(item => inputs.indexOf(item) !== -1))
+    return CONDITIONS.some(d => d.every(item => inputs.indexOf(item) !== -1))
   }
 
   componentDidUpdate() {
@@ -89,25 +95,27 @@ export default class GameBoard extends Component {
 
     if (inputs.length >= 5 ) {
       let res = this.judgeWinner(userInputs)
-      if (res && result !== 0) {
-        this.setState({ result: 0 })
+      if (res && result !== GAME_RESULT_USER) {
+        this.setState({ result: GAME_RESULT_USER })
         return
       }
       res = this.judgeWinner(AIInputs)
-      if (res && result !== 1) {
-        this.setState({ result: 1 })
+      if (res && result !== GAME_RESULT_AI) {
+        this.setState({ result: GAME_RESULT_AI })
         return
       }
     }
 
-    if (inputs.length === 9 && result === -1 && result !== 2) {
-      this.setState({ result: 2 })
+    if (inputs.length === 9 &&
+        result === GAME_RESULT_NO && result !== GAME_RESULT_TIE) {
+      this.setState({ result: GAME_RESULT_TIE })
     }
   }
 
   render() {
     const { userInputs, AIInputs, result } = this.state
-    console.log(result);
+    console.log(userInputs);
+    console.log(AIInputs);
     return (
       <View style={styles.container}>
         <TouchableWithoutFeedback onPress={e => this.boardClickHandler(e)}>
@@ -146,8 +154,8 @@ export default class GameBoard extends Component {
               userInputs.map((d, i) => (
                 <Circle
                   key={i}
-                  xTranslate={centerPoints[d].x}
-                  yTranslate={centerPoints[d].y}
+                  xTranslate={CENTER_POINTS[d].x}
+                  yTranslate={CENTER_POINTS[d].y}
                   color='deepskyblue'
                 />
               ))
@@ -156,21 +164,21 @@ export default class GameBoard extends Component {
               AIInputs.map((d, i) => (
                 <Cross
                   key={i}
-                  xTranslate={centerPoints[d].x}
-                  yTranslate={centerPoints[d].y}
+                  xTranslate={CENTER_POINTS[d].x}
+                  yTranslate={CENTER_POINTS[d].y}
                 />
               ))
             }
           </View>
         </TouchableWithoutFeedback>
-        { result === 2 && <Text style={styles.text}>Sorry, there is no winner.</Text> }
-        { result === 0 && <Text style={styles.text}>You won the game!</Text> }
-        { result === 1 && <Text style={styles.text}>AI won the game!</Text> }
+        { result === GAME_RESULT_USER && <Text style={styles.text}>You won the game!</Text> }
+        { result === GAME_RESULT_AI && <Text style={styles.text}>AI won the game!</Text> }
+        { result === GAME_RESULT_TIE && <Text style={styles.text}>Tie</Text> }
         {
-          result !== -1 && (
+          result !== GAME_RESULT_NO && (
             <TouchableOpacity onPress={() => this.restart()}>
               <Text style={styles.instructions}>
-                Click here to play again
+                Touch here to play again
               </Text>
             </TouchableOpacity>
           )
