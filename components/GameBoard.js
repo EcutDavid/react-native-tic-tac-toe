@@ -6,10 +6,7 @@
 
 import React, { Component } from 'react'
 import {
-  StyleSheet,
-  Text,
   TouchableWithoutFeedback,
-  TouchableOpacity,
   View
 } from 'react-native'
 
@@ -24,6 +21,8 @@ import {
   GAME_RESULT_AI,
   GAME_RESULT_TIE
 } from '../constants/game'
+import styles from './styles/gameBoard'
+import PromptArea from './PromptArea'
 
 export default class GameBoard extends Component {
   constructor() {
@@ -31,18 +30,24 @@ export default class GameBoard extends Component {
     this.state= {
       userInputs: [],
       AIInputs: [],
-      result: GAME_RESULT_NO
+      result: GAME_RESULT_NO,
+      round: 0
     }
   }
 
   restart() {
-    this.restarting = true
+    const { round } = this.state
     this.setState({
       userInputs: [],
       AIInputs: [],
-      result: GAME_RESULT_NO
+      result: GAME_RESULT_NO,
+      round: round + 1
     })
-    setTimeout(() => {this.restarting = false}, 3)
+    setTimeout(() => {
+      if (round % 2 === 0) {
+        this.AIAction()
+      }
+    }, 5)
   }
 
   boardClickHandler(e) {
@@ -59,50 +64,50 @@ export default class GameBoard extends Component {
 
       if (area && inputs.every(d => d !== area.id)) {
         this.setState({ userInputs: userInputs.concat(area.id) })
-        if (!this.judgeWinner(userInputs.concat(area.id))) {
-          setTimeout(() => this.AIAction(), 3)
-        }
+        setTimeout(() => {
+          this.judgeWinner()
+          this.AIAction()
+        }, 5)
       }
   }
 
   AIAction() {
+    const { userInputs, AIInputs, result } = this.state
+    if (result !== -1) {
+      return
+    }
     while(true) {
-      const { userInputs, AIInputs } = this.state
       const inputs = userInputs.concat(AIInputs)
 
       const randomNumber = Number.parseInt(Math.random() * 8.9)
       if (inputs.every(d => d !== randomNumber)) {
         this.setState({ AIInputs: AIInputs.concat(randomNumber) })
+        this.judgeWinner()
         break
       }
     }
   }
 
   componentDidMount() {
-    this.AIAction()
+    this.restart()
   }
 
-  judgeWinner(inputs) {
+  isWinner(inputs) {
     return CONDITIONS.some(d => d.every(item => inputs.indexOf(item) !== -1))
   }
 
-  componentDidUpdate() {
-    if (this.restarting) {
-      return
-    }
+  judgeWinner() {
     const { userInputs, AIInputs, result } = this.state
     const inputs = userInputs.concat(AIInputs)
 
     if (inputs.length >= 5 ) {
-      let res = this.judgeWinner(userInputs)
+      let res = this.isWinner(userInputs)
       if (res && result !== GAME_RESULT_USER) {
-        this.setState({ result: GAME_RESULT_USER })
-        return
+        return this.setState({ result: GAME_RESULT_USER })
       }
-      res = this.judgeWinner(AIInputs)
+      res = this.isWinner(AIInputs)
       if (res && result !== GAME_RESULT_AI) {
-        this.setState({ result: GAME_RESULT_AI })
-        return
+        return this.setState({ result: GAME_RESULT_AI })
       }
     }
 
@@ -114,8 +119,6 @@ export default class GameBoard extends Component {
 
   render() {
     const { userInputs, AIInputs, result } = this.state
-    console.log(userInputs);
-    console.log(AIInputs);
     return (
       <View style={styles.container}>
         <TouchableWithoutFeedback onPress={e => this.boardClickHandler(e)}>
@@ -171,52 +174,8 @@ export default class GameBoard extends Component {
             }
           </View>
         </TouchableWithoutFeedback>
-        { result === GAME_RESULT_USER && <Text style={styles.text}>You won the game!</Text> }
-        { result === GAME_RESULT_AI && <Text style={styles.text}>AI won the game!</Text> }
-        { result === GAME_RESULT_TIE && <Text style={styles.text}>Tie</Text> }
-        {
-          result !== GAME_RESULT_NO && (
-            <TouchableOpacity onPress={() => this.restart()}>
-              <Text style={styles.instructions}>
-                Touch here to play again
-              </Text>
-            </TouchableOpacity>
-          )
-        }
+        <PromptArea result={result} onRestart={() => this.restart()} />
       </View>
     )
   }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 20
-  },
-  board: {
-    width: 312,
-    height: 312,
-    borderWidth: 3,
-    borderColor: '#000'
-  },
-  line: {
-    position: 'absolute',
-    width: 3,
-    height: 306,
-    backgroundColor: '#000',
-    transform: [
-      {translateX: 100}
-    ]
-  },
-  text: {
-    marginTop: 20,
-    fontSize: 19,
-    fontWeight: 'bold'
-  },
-  instructions: {
-    marginTop: 20,
-    color: 'grey',
-    marginBottom: 5,
-  },
-})
