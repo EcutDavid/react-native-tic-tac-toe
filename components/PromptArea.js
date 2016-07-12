@@ -19,18 +19,16 @@ import {
   GAME_RESULT_TIE
 } from '../constants/game'
 
+
 export default class Header extends Component {
-  generateResultText(result) {
+  generateResultText(result: number) {
     switch (result) {
       case GAME_RESULT_USER:
         return 'You won the game!'
-        break;
       case GAME_RESULT_AI:
         return 'AI won the game!'
-        break;
       case GAME_RESULT_TIE:
         return 'Tie!'
-        break;
       default:
         return ''
     }

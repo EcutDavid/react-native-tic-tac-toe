@@ -16,8 +16,12 @@ import Header from './Header'
 import GameBoard from './GameBoard'
 
 export default class App extends Component {
-  constructor(props) {
-    super(props)
+  state: {
+    gameStarted: boolean
+  };
+
+  constructor() {
+    super()
     this.state={ gameStarted: false }
   }
 

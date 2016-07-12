@@ -25,11 +25,18 @@ import styles from './styles/gameBoard'
 import PromptArea from './PromptArea'
 
 export default class GameBoard extends Component {
+  state: {
+    AIInputs: number[],
+    userInputs: number[],
+    result: number,
+    round: number
+  };
+
   constructor() {
     super()
     this.state= {
-      userInputs: [],
       AIInputs: [],
+      userInputs: [],
       result: GAME_RESULT_NO,
       round: 0
     }
@@ -50,7 +57,7 @@ export default class GameBoard extends Component {
     }, 5)
   }
 
-  boardClickHandler(e) {
+  boardClickHandler(e: Object) {
     const { locationX, locationY } = e.nativeEvent
     const { userInputs, AIInputs, result } = this.state
     if (result !== -1) {
@@ -79,7 +86,7 @@ export default class GameBoard extends Component {
     while(true) {
       const inputs = userInputs.concat(AIInputs)
 
-      const randomNumber = Number.parseInt(Math.random() * 8.9)
+      const randomNumber = Math.round(Math.random() * 8.3)
       if (inputs.every(d => d !== randomNumber)) {
         this.setState({ AIInputs: AIInputs.concat(randomNumber) })
         this.judgeWinner()
@@ -92,7 +99,7 @@ export default class GameBoard extends Component {
     this.restart()
   }
 
-  isWinner(inputs) {
+  isWinner(inputs: number[]) {
     return CONDITIONS.some(d => d.every(item => inputs.indexOf(item) !== -1))
   }
 
